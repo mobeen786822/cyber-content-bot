@@ -10,7 +10,7 @@ services:
       - key: FLASK_DEBUG
         value: "0"
       - key: PYTHON_VERSION
-        value: "3.12"
+        value: "3.12.0"
 
   - type: web
     name: cyber-content-bot-ui
