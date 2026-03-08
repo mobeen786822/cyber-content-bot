@@ -1,3 +1,4 @@
+import os
 import threading
 from pathlib import Path
 from datetime import datetime
@@ -79,4 +80,5 @@ def regenerate_draft():
 if __name__ == "__main__":
     from scheduler import init_scheduler
     init_scheduler(app, store, store_lock)
-    app.run(host="0.0.0.0", port=5058, debug=True, use_reloader=False, threaded=True)
+    debug = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(host="0.0.0.0", port=5058, debug=debug, use_reloader=False, threaded=True)

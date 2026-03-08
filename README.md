@@ -110,6 +110,7 @@ The Vite dev server starts on **http://localhost:5173** and proxies all `/api` r
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `ANTHROPIC_API_KEY` | Yes | Your Anthropic API key for Claude Haiku |
+| `FLASK_DEBUG` | No | Set to `1` to enable Flask debug mode (defaults to off) |
 
 Copy `.env.example` to `.env` and add your key. The app uses `python-dotenv` with `override=True` so the `.env` file always takes precedence over shell environment variables.
 
@@ -129,6 +130,12 @@ The GitHub Actions workflow (`.github/workflows/security.yml`) runs on every pus
 - **Bandit** — Static analysis for Python security issues (HIGH severity)
 - **pip-audit** — Checks dependencies against known vulnerability databases
 - **Gitleaks** — Scans for accidentally committed secrets and API keys
+
+### Security Fix: B201 — Flask Debug Mode
+
+Bandit flagged a high-severity issue ([B201](https://bandit.readthedocs.io/en/latest/plugins/b201_flask_debug_true.html)) where `debug=True` was hardcoded in `app.run()`. Running Flask with debug mode enabled exposes the Werkzeug debugger, which allows arbitrary code execution on the server.
+
+**Fix:** The debug flag now reads from the `FLASK_DEBUG` environment variable and defaults to **off**. Local developers can set `FLASK_DEBUG=1` in their `.env` file to re-enable it during development.
 
 ## Tech Stack
 
