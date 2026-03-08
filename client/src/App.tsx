@@ -92,22 +92,27 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0D1117] text-[#E6EDF3]">
-      {/* Header */}
-      <header className="border-b border-[#30363D] px-6 py-4">
-        <div className="mx-auto flex max-w-4xl items-center justify-between">
+    <div className="relative min-h-screen overflow-x-hidden bg-slate-950 text-slate-100">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -left-16 -top-16 h-64 w-64 rounded-full bg-emerald-500/15 blur-3xl" />
+        <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-cyan-500/20 blur-3xl" />
+        <div className="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-cyan-900/30 blur-3xl" />
+      </div>
+
+      <header className="relative border-b border-cyan-900/40 bg-slate-950/70 px-6 py-5 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl font-bold tracking-tight">
-              <span className="text-[#20D3BE]">Cyber</span> Content Bot
+            <h1 className="font-heading text-2xl font-semibold tracking-tight text-cyan-100">
+              <span className="text-cyan-300">Cyber</span> Content Bot
             </h1>
-            <p className="mt-1 text-sm text-[#8B949E]">
+            <p className="mt-1 text-sm text-slate-400">
               Last run: {formatTime(status?.last_run ?? null)}
             </p>
           </div>
           <button
             onClick={handleRun}
             disabled={loading}
-            className="rounded-lg bg-[#20D3BE] px-5 py-2.5 text-sm font-semibold text-[#0D1117] transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="inline-flex items-center rounded-full border border-cyan-300/50 bg-cyan-300/90 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-600/20 transition hover:-translate-y-0.5 hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? (
               <span className="flex items-center gap-2">
@@ -120,9 +125,8 @@ function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl space-y-6 p-6">
-        {/* Status Bar */}
-        <div className="flex flex-wrap gap-4 rounded-lg border border-[#30363D] bg-[#161B22] p-4 text-sm">
+      <main className="relative mx-auto max-w-5xl space-y-6 p-6">
+        <div className="grid gap-3 rounded-2xl border border-cyan-900/60 bg-slate-900/70 p-4 text-sm backdrop-blur-sm sm:grid-cols-3">
           <StatusPill
             label="Scheduler"
             value={status?.scheduler_running ? 'Active' : 'Inactive'}
@@ -138,38 +142,36 @@ function App() {
           />
         </div>
 
-        {/* Loading State */}
         {loading && (
-          <div className="flex items-center justify-center gap-3 rounded-lg border border-[#30363D] bg-[#161B22] p-12">
+          <div className="flex items-center justify-center gap-3 rounded-2xl border border-cyan-900/60 bg-slate-900/70 p-12 backdrop-blur-sm">
             <Spinner />
-            <span className="text-[#8B949E]">
+            <span className="text-slate-300">
               Fetching sources and generating draft... this may take 10-15 seconds
             </span>
           </div>
         )}
 
-        {/* Draft Card */}
         {draftData?.draft && !loading && (
-          <div className="rounded-lg border border-[#30363D] bg-[#161B22]">
-            <div className="flex items-center justify-between border-b border-[#30363D] px-5 py-3">
-              <h2 className="font-semibold">LinkedIn Draft</h2>
+          <div className="overflow-hidden rounded-3xl border border-cyan-900/60 bg-gradient-to-r from-slate-950 via-slate-900 to-cyan-950/40 shadow-soft">
+            <div className="flex items-center justify-between border-b border-cyan-900/50 px-5 py-4">
+              <h2 className="font-heading text-lg font-semibold">LinkedIn Draft</h2>
               <button
                 onClick={handleCopy}
-                className="rounded-md border border-[#30363D] px-3 py-1.5 text-xs font-medium text-[#8B949E] transition-colors hover:border-[#20D3BE] hover:text-[#20D3BE]"
+                className="rounded-full border border-cyan-700/60 bg-slate-900/40 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-cyan-300/60 hover:text-cyan-200"
               >
                 {copied ? 'Copied!' : 'Copy to Clipboard'}
               </button>
             </div>
             <div className="p-5">
-              <p className="whitespace-pre-wrap leading-relaxed text-[#E6EDF3]">
+              <p className="whitespace-pre-wrap leading-relaxed text-slate-100">
                 {draftData.draft}
               </p>
             </div>
-            <div className="flex items-center gap-3 border-t border-[#30363D] px-5 py-3">
+            <div className="flex flex-wrap items-center gap-3 border-t border-cyan-900/50 px-5 py-4">
               <select
                 value={tone}
                 onChange={(e) => setTone(e.target.value)}
-                className="rounded-md border border-[#30363D] bg-[#0D1117] px-3 py-1.5 text-sm text-[#E6EDF3] outline-none focus:border-[#20D3BE]"
+                className="rounded-full border border-cyan-900/80 bg-slate-950 px-3 py-1.5 text-sm text-slate-200 outline-none transition focus:border-cyan-300"
               >
                 <option value="professional">Professional</option>
                 <option value="conversational">Conversational</option>
@@ -178,7 +180,7 @@ function App() {
               <button
                 onClick={handleRegenerate}
                 disabled={regenerating}
-                className="rounded-md border border-[#20D3BE] px-4 py-1.5 text-sm font-medium text-[#20D3BE] transition-opacity hover:opacity-80 disabled:opacity-50"
+                className="rounded-full border border-cyan-300/60 px-4 py-1.5 text-sm font-medium text-cyan-200 transition hover:bg-cyan-500/15 disabled:opacity-50"
               >
                 {regenerating ? 'Regenerating...' : 'Regenerate'}
               </button>
@@ -186,24 +188,21 @@ function App() {
           </div>
         )}
 
-        {/* No Draft State */}
         {!draftData?.draft && !loading && (
-          <div className="rounded-lg border border-[#30363D] bg-[#161B22] p-12 text-center">
-            <p className="text-[#8B949E]">
-              No draft yet. Click <span className="text-[#20D3BE]">Run Now</span> to
+          <div className="rounded-2xl border border-cyan-900/60 bg-slate-900/70 p-12 text-center backdrop-blur-sm">
+            <p className="text-slate-300">
+              No draft yet. Click <span className="text-cyan-300">Run Now</span> to
               fetch sources and generate a LinkedIn post.
             </p>
           </div>
         )}
 
-        {/* Sources Panel */}
         {draftData && hasFindings(draftData) && !loading && (
           <div className="space-y-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#8B949E]">
+            <h2 className="font-heading text-sm font-semibold uppercase tracking-[0.18em] text-cyan-300">
               Sources
             </h2>
 
-            {/* NVD CVEs */}
             <SourceSection
               title={`NVD CVEs (${draftData.findings.nvd.length})`}
               expanded={expandedSources['nvd'] ?? false}
@@ -212,15 +211,15 @@ function App() {
               {draftData.findings.nvd.map((cve) => (
                 <div
                   key={cve.cve_id}
-                  className="border-b border-[#30363D] px-5 py-3 last:border-0"
+                  className="border-b border-cyan-900/40 px-5 py-3 last:border-0"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm text-[#20D3BE]">
+                    <span className="font-mono text-sm text-cyan-300">
                       {cve.cve_id}
                     </span>
                     <SeverityBadge score={cve.cvss_score} severity={cve.severity} />
                   </div>
-                  <p className="mt-1 text-sm text-[#8B949E] line-clamp-2">
+                  <p className="mt-1 line-clamp-2 text-sm text-slate-300">
                     {cve.description}
                   </p>
                   {cve.affected_products.length > 0 && (
@@ -228,7 +227,7 @@ function App() {
                       {cve.affected_products.map((p) => (
                         <span
                           key={p}
-                          className="rounded bg-[#0D1117] px-2 py-0.5 text-xs text-[#8B949E]"
+                          className="rounded-full border border-cyan-900/50 bg-slate-950 px-2 py-0.5 text-xs text-slate-400"
                         >
                           {p}
                         </span>
@@ -239,7 +238,6 @@ function App() {
               ))}
             </SourceSection>
 
-            {/* CISA Advisories */}
             <SourceSection
               title={`CISA KEV (${draftData.findings.cisa.length})`}
               expanded={expandedSources['cisa'] ?? false}
@@ -248,23 +246,22 @@ function App() {
               {draftData.findings.cisa.map((adv) => (
                 <div
                   key={adv.cve_id}
-                  className="border-b border-[#30363D] px-5 py-3 last:border-0"
+                  className="border-b border-cyan-900/40 px-5 py-3 last:border-0"
                 >
-                  <div className="font-mono text-sm text-[#20D3BE]">
+                  <div className="font-mono text-sm text-cyan-300">
                     {adv.cve_id}
                   </div>
                   <p className="mt-1 text-sm font-medium">{adv.vulnerability_name}</p>
-                  <p className="text-sm text-[#8B949E]">
-                    {adv.vendor_project} &mdash; {adv.product}
+                  <p className="text-sm text-slate-300">
+                    {adv.vendor_project} - {adv.product}
                   </p>
-                  <p className="mt-1 text-xs text-[#8B949E]">
+                  <p className="mt-1 text-xs text-slate-400">
                     Action: {adv.required_action}
                   </p>
                 </div>
               ))}
             </SourceSection>
 
-            {/* arXiv Papers */}
             <SourceSection
               title={`arXiv Papers (${draftData.findings.arxiv.length})`}
               expanded={expandedSources['arxiv'] ?? false}
@@ -273,20 +270,20 @@ function App() {
               {draftData.findings.arxiv.map((paper) => (
                 <div
                   key={paper.link}
-                  className="border-b border-[#30363D] px-5 py-3 last:border-0"
+                  className="border-b border-cyan-900/40 px-5 py-3 last:border-0"
                 >
                   <a
                     href={paper.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-[#20D3BE] hover:underline"
+                    className="text-sm font-medium text-cyan-200 transition hover:text-emerald-300"
                   >
                     {paper.title}
                   </a>
-                  <p className="mt-1 text-xs text-[#8B949E]">
+                  <p className="mt-1 text-xs text-slate-400">
                     {paper.authors.join(', ')}
                   </p>
-                  <p className="mt-1 text-sm text-[#8B949E] line-clamp-3">
+                  <p className="mt-1 line-clamp-3 text-sm text-slate-300">
                     {paper.summary}
                   </p>
                 </div>
@@ -317,14 +314,14 @@ function StatusPill({
   active?: boolean
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 rounded-xl border border-cyan-900/50 bg-slate-950/40 px-3 py-2">
       {active !== undefined && (
         <span
-          className={`h-2 w-2 rounded-full ${active ? 'bg-green-400' : 'bg-[#8B949E]'}`}
+          className={`h-2.5 w-2.5 rounded-full ${active ? 'bg-emerald-300' : 'bg-slate-500'}`}
         />
       )}
-      <span className="text-[#8B949E]">{label}:</span>
-      <span>{value}</span>
+      <span className="text-slate-400">{label}:</span>
+      <span className="text-slate-200">{value}</span>
     </div>
   )
 }
@@ -332,10 +329,10 @@ function StatusPill({
 function SeverityBadge({ score, severity }: { score: number; severity: string }) {
   const color =
     severity === 'CRITICAL'
-      ? 'bg-red-900/50 text-red-400'
-      : 'bg-orange-900/50 text-orange-400'
+      ? 'border-red-400/40 bg-red-900/40 text-red-300'
+      : 'border-amber-400/40 bg-amber-900/40 text-amber-300'
   return (
-    <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${color}`}>
+    <span className={`rounded-full border px-1.5 py-0.5 text-xs font-medium ${color}`}>
       {severity} {score}
     </span>
   )
@@ -353,13 +350,13 @@ function SourceSection({
   children: React.ReactNode
 }) {
   return (
-    <div className="rounded-lg border border-[#30363D] bg-[#161B22]">
+    <div className="overflow-hidden rounded-2xl border border-cyan-900/60 bg-slate-900/70 backdrop-blur-sm">
       <button
         onClick={onToggle}
-        className="flex w-full items-center justify-between px-5 py-3 text-left text-sm font-medium hover:bg-[#1c2129]"
+        className="flex w-full items-center justify-between px-5 py-3 text-left text-sm font-medium transition hover:bg-slate-800/70"
       >
         {title}
-        <span className="text-[#8B949E]">{expanded ? '\u25B2' : '\u25BC'}</span>
+        <span className="text-slate-400">{expanded ? '\u25B2' : '\u25BC'}</span>
       </button>
       {expanded && <div>{children}</div>}
     </div>
@@ -369,7 +366,7 @@ function SourceSection({
 function Spinner() {
   return (
     <svg
-      className="h-4 w-4 animate-spin text-[#20D3BE]"
+      className="h-4 w-4 animate-spin text-cyan-300"
       viewBox="0 0 24 24"
       fill="none"
     >
