@@ -98,7 +98,7 @@ function App() {
         <div className="mx-auto flex max-w-4xl items-center justify-between">
           <div>
             <h1 className="text-xl font-bold tracking-tight">
-              <span className="text-[#20D3BE]">cyber</span>-content-bot
+              <span className="text-[#20D3BE]">Cyber</span> Content Bot
             </h1>
             <p className="mt-1 text-sm text-[#8B949E]">
               Last run: {formatTime(status?.last_run ?? null)}
