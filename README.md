@@ -130,26 +130,6 @@ The GitHub Actions workflow (`.github/workflows/security.yml`) runs on every pus
 - **pip-audit** — Checks dependencies against known vulnerability databases
 - **Gitleaks** — Scans for accidentally committed secrets and API keys
 
-### Security Fix: B201 — Flask Debug Mode
-
-Bandit flagged a high-severity issue ([B201](https://bandit.readthedocs.io/en/latest/plugins/b201_flask_debug_true.html)) where `debug=True` was hardcoded in `app.run()`. Running Flask with debug mode enabled exposes the Werkzeug debugger, which allows arbitrary code execution on the server.
-
-**Fix:** The debug flag now reads from the `FLASK_DEBUG` environment variable and defaults to **off**. Local developers can set `FLASK_DEBUG=1` in their `.env` file to re-enable it during development.
-
-### Security Fix: Vulnerable Dependencies
-
-pip-audit flagged 6 known vulnerabilities across 3 packages. All were resolved by bumping to patched versions:
-
-| Package | Old | New | CVEs |
-|---------|-----|-----|------|
-| flask | 3.1.0 | 3.1.3 | CVE-2025-47278, CVE-2026-27205 |
-| flask-cors | 5.0.1 | 6.0.0 | CVE-2024-6866, CVE-2024-6844, CVE-2024-6839 |
-| requests | 2.32.3 | 2.32.4 | CVE-2024-47081 |
-
-### Change: APScheduler Removed
-
-The project originally used APScheduler to run a weekly fetch + generate cycle every Monday at 8 AM, with an automatic run on startup. This was removed in favour of manual-only triggering via the **Run Now** button. The `scheduler.py` file was deleted and `apscheduler` was removed from `requirements.txt`, reducing the dependency footprint and giving users full control over when the pipeline runs.
-
 ## Deployment (Render)
 
 The project includes a `render.yaml` blueprint for one-click deployment to [Render](https://render.com):
@@ -166,6 +146,59 @@ To deploy:
 3. Connect your repo — Render reads `render.yaml` automatically
 4. Set `ANTHROPIC_API_KEY` when prompted for the backend
 5. Set `VITE_API_BASE` to the backend's public URL + `/api` (e.g. `https://cyber-content-bot-api.onrender.com/api`) for the frontend
+6. Redeploy the frontend after setting `VITE_API_BASE` — it's a build-time variable
+
+## Issues & Fixes
+
+A log of problems encountered during development and deployment, and how each was resolved.
+
+### `.env` file encoded as UTF-16 LE
+
+**Problem:** Python's `load_dotenv` threw `UnicodeDecodeError: 'utf-8' codec can't decode byte 0xff` because the `.env` file was saved with UTF-16 LE encoding (BOM `ff fe`).
+
+**Fix:** Converted the file to UTF-8 with `iconv` and stripped the BOM.
+
+### API key returning 401 despite being set in `.env`
+
+**Problem:** The Anthropic API returned `authentication_error: invalid x-api-key` even though the key was in `.env`. The root cause was that `ANTHROPIC_API_KEY` already existed as an empty string in the shell environment, and `load_dotenv()` doesn't override existing env vars by default.
+
+**Fix:** Added `override=True` to the `load_dotenv()` call so the `.env` file always takes precedence.
+
+### Bandit B201 — Flask debug mode hardcoded
+
+**Problem:** Bandit flagged `debug=True` in `app.run()` as a high-severity issue ([B201](https://bandit.readthedocs.io/en/latest/plugins/b201_flask_debug_true.html)). Running Flask with debug mode exposes the Werkzeug debugger, which allows arbitrary code execution.
+
+**Fix:** The debug flag now reads from the `FLASK_DEBUG` environment variable and defaults to **off**.
+
+### pip-audit — 6 vulnerable dependencies
+
+**Problem:** pip-audit flagged known CVEs in three packages.
+
+**Fix:** Bumped all to patched versions:
+
+| Package | Old | New | CVEs |
+|---------|-----|-----|------|
+| flask | 3.1.0 | 3.1.3 | CVE-2025-47278, CVE-2026-27205 |
+| flask-cors | 5.0.1 | 6.0.0 | CVE-2024-6866, CVE-2024-6844, CVE-2024-6839 |
+| requests | 2.32.3 | 2.32.4 | CVE-2024-47081 |
+
+### APScheduler removed
+
+**Problem:** The weekly cron scheduler added complexity and a dependency that wasn't needed for an on-demand tool.
+
+**Fix:** Deleted `scheduler.py`, removed `apscheduler` from `requirements.txt`, and moved `run_cycle` into `app.py`. The pipeline now runs only when triggered via **Run Now**.
+
+### Render blueprint — `PYTHON_VERSION` format
+
+**Problem:** Render rejected `PYTHON_VERSION: "3.12"` with the error: *"must provide a major, minor, and patch version, e.g. 3.8.1"*.
+
+**Fix:** Changed to the full semver format `"3.12.0"`.
+
+### Render blueprint — static site definition
+
+**Problem:** The initial `render.yaml` defined the frontend under a `staticSites` top-level key, which Render didn't recognise. A second attempt used `plan: static` under `services`, which also failed.
+
+**Fix:** Static sites in Render blueprints use `type: web` with `runtime: static` under the `services` key.
 
 ## Tech Stack
 
