@@ -32,8 +32,6 @@ export interface StatusResponse {
   last_run: string | null;
   num_findings: number;
   has_draft: boolean;
-  scheduler_running: boolean;
-  next_run: string | null;
   cycle_running: boolean;
 }
 

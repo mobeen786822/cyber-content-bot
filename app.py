@@ -1,7 +1,7 @@
 import os
 import threading
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -21,11 +21,46 @@ store = {
         "arxiv": [],
     },
     "draft": None,
-    "scheduler_running": False,
-    "next_run": None,
     "cycle_running": False,
 }
 store_lock = threading.Lock()
+
+
+def run_cycle():
+    with store_lock:
+        store["cycle_running"] = True
+
+    try:
+        print(f"[{datetime.now(timezone.utc).isoformat()}] Starting fetch cycle...")
+
+        from fetchers.nvd import fetch_nvd_cves
+        from fetchers.cisa import fetch_cisa_kev
+        from fetchers.arxiv import fetch_arxiv_papers
+        from generator.post_generator import generate_post
+
+        nvd_data = fetch_nvd_cves()
+        cisa_data = fetch_cisa_kev()
+        arxiv_data = fetch_arxiv_papers()
+
+        findings = {
+            "nvd": nvd_data,
+            "cisa": cisa_data,
+            "arxiv": arxiv_data,
+        }
+
+        print(f"Fetched: {len(nvd_data)} CVEs, {len(cisa_data)} CISA advisories, {len(arxiv_data)} arXiv papers")
+
+        draft = generate_post(findings)
+
+        with store_lock:
+            store["findings"] = findings
+            store["draft"] = draft
+            store["last_run"] = datetime.now(timezone.utc).isoformat()
+
+        print("Cycle complete.")
+    finally:
+        with store_lock:
+            store["cycle_running"] = False
 
 
 @app.route("/api/status")
@@ -39,8 +74,6 @@ def status():
                 + len(store["findings"]["arxiv"])
             ),
             "has_draft": store["draft"] is not None,
-            "scheduler_running": store["scheduler_running"],
-            "next_run": store["next_run"],
             "cycle_running": store["cycle_running"],
         })
 
@@ -50,8 +83,7 @@ def run():
     with store_lock:
         if store["cycle_running"]:
             return jsonify({"message": "Cycle already running"}), 409
-    from scheduler import run_cycle
-    thread = threading.Thread(target=run_cycle, args=(store, store_lock))
+    thread = threading.Thread(target=run_cycle)
     thread.start()
     return jsonify({"message": "Cycle started"}), 202
 
@@ -78,7 +110,5 @@ def regenerate_draft():
 
 
 if __name__ == "__main__":
-    from scheduler import init_scheduler
-    init_scheduler(app, store, store_lock)
     debug = os.environ.get("FLASK_DEBUG", "0") == "1"
     app.run(host="0.0.0.0", port=5058, debug=debug, use_reloader=False, threaded=True)

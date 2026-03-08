@@ -126,19 +126,15 @@ function App() {
       </header>
 
       <main className="relative mx-auto max-w-5xl space-y-6 p-6">
-        <div className="grid gap-3 rounded-2xl border border-cyan-900/60 bg-slate-900/70 p-4 text-sm backdrop-blur-sm sm:grid-cols-3">
+        <div className="grid gap-3 rounded-2xl border border-cyan-900/60 bg-slate-900/70 p-4 text-sm backdrop-blur-sm sm:grid-cols-2">
           <StatusPill
-            label="Scheduler"
-            value={status?.scheduler_running ? 'Active' : 'Inactive'}
-            active={status?.scheduler_running ?? false}
+            label="Status"
+            value={status?.cycle_running ? 'Running' : 'Idle'}
+            active={status?.cycle_running ?? false}
           />
           <StatusPill
             label="Findings"
             value={String(status?.num_findings ?? 0)}
-          />
-          <StatusPill
-            label="Next Run"
-            value={formatTime(status?.next_run ?? null)}
           />
         </div>
 

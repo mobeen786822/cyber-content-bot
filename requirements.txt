@@ -3,5 +3,4 @@ flask-cors==6.0.0
 requests==2.32.4
 anthropic==0.43.0
 python-dotenv==1.0.1
-apscheduler==3.10.4
 feedparser==6.0.11
