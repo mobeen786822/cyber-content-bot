@@ -137,6 +137,16 @@ Bandit flagged a high-severity issue ([B201](https://bandit.readthedocs.io/en/la
 
 **Fix:** The debug flag now reads from the `FLASK_DEBUG` environment variable and defaults to **off**. Local developers can set `FLASK_DEBUG=1` in their `.env` file to re-enable it during development.
 
+### Security Fix: Vulnerable Dependencies
+
+pip-audit flagged 6 known vulnerabilities across 3 packages. All were resolved by bumping to patched versions:
+
+| Package | Old | New | CVEs |
+|---------|-----|-----|------|
+| flask | 3.1.0 | 3.1.3 | CVE-2025-47278, CVE-2026-27205 |
+| flask-cors | 5.0.1 | 6.0.0 | CVE-2024-6866, CVE-2024-6844, CVE-2024-6839 |
+| requests | 2.32.3 | 2.32.4 | CVE-2024-47081 |
+
 ## Tech Stack
 
 | Layer | Technology |
