@@ -26,7 +26,7 @@ def fetch_nvd_cves():
         cve_data = item.get("cve", {})
         cve_id = cve_data.get("id", "")
 
-        # Extract CVSS score — try v3.1 first, then v3.0, then v2
+        # Extract CVSS score — try v3.1 first, then v3.0
         metrics = cve_data.get("metrics", {})
         cvss_score = None
         severity = None

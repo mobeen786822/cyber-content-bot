@@ -22,6 +22,7 @@ store = {
     "draft": None,
     "scheduler_running": False,
     "next_run": None,
+    "cycle_running": False,
 }
 store_lock = threading.Lock()
 
@@ -39,11 +40,15 @@ def status():
             "has_draft": store["draft"] is not None,
             "scheduler_running": store["scheduler_running"],
             "next_run": store["next_run"],
+            "cycle_running": store["cycle_running"],
         })
 
 
 @app.route("/api/run", methods=["POST"])
 def run():
+    with store_lock:
+        if store["cycle_running"]:
+            return jsonify({"message": "Cycle already running"}), 409
     from scheduler import run_cycle
     thread = threading.Thread(target=run_cycle, args=(store, store_lock))
     thread.start()
@@ -74,4 +79,4 @@ def regenerate_draft():
 if __name__ == "__main__":
     from scheduler import init_scheduler
     init_scheduler(app, store, store_lock)
-    app.run(host="0.0.0.0", port=5058, debug=True, use_reloader=False)
+    app.run(host="0.0.0.0", port=5058, debug=True, use_reloader=False, threaded=True)

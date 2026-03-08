@@ -34,6 +34,7 @@ export interface StatusResponse {
   has_draft: boolean;
   scheduler_running: boolean;
   next_run: string | null;
+  cycle_running: boolean;
 }
 
 export interface DraftResponse {
@@ -43,18 +44,28 @@ export interface DraftResponse {
 
 const BASE = '/api';
 
-export async function getStatus(): Promise<StatusResponse> {
-  const res = await fetch(`${BASE}/status`);
+async function handleResponse<T>(res: Response): Promise<T> {
+  if (!res.ok) {
+    throw new Error(`API error: ${res.status} ${res.statusText}`);
+  }
   return res.json();
 }
 
+export async function getStatus(): Promise<StatusResponse> {
+  const res = await fetch(`${BASE}/status`);
+  return handleResponse<StatusResponse>(res);
+}
+
 export async function triggerRun(): Promise<void> {
-  await fetch(`${BASE}/run`, { method: 'POST' });
+  const res = await fetch(`${BASE}/run`, { method: 'POST' });
+  if (!res.ok && res.status !== 409) {
+    throw new Error(`API error: ${res.status} ${res.statusText}`);
+  }
 }
 
 export async function getDraft(): Promise<DraftResponse> {
   const res = await fetch(`${BASE}/draft`);
-  return res.json();
+  return handleResponse<DraftResponse>(res);
 }
 
 export async function regenerateDraft(tone: string): Promise<{ draft: string }> {
@@ -63,5 +74,5 @@ export async function regenerateDraft(tone: string): Promise<{ draft: string }> 
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ tone }),
   });
-  return res.json();
+  return handleResponse<{ draft: string }>(res);
 }

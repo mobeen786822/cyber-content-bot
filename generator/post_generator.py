@@ -35,11 +35,14 @@ Based on these findings, identify the 2-3 most interesting or important items ac
 
 Include relevant hashtags at the end. Do not use emojis. Focus on providing genuine insight or awareness, not just listing CVEs."""
 
-    message = client.messages.create(
-        model="claude-haiku-4-5-20251001",
-        max_tokens=1024,
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": user_prompt}],
-    )
-
-    return message.content[0].text
+    try:
+        message = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=1024,
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": user_prompt}],
+        )
+        return message.content[0].text
+    except Exception as e:
+        print(f"Claude API error: {e}")
+        return f"Error generating post: {e}"

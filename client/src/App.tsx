@@ -38,7 +38,7 @@ function App() {
       try {
         const s = await getStatus()
         setStatus(s)
-        if (s.has_draft) {
+        if (!s.cycle_running) {
           const d = await getDraft()
           setDraftData(d)
           setLoading(false)

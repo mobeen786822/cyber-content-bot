@@ -9,28 +9,35 @@ from generator.post_generator import generate_post
 
 
 def run_cycle(store, store_lock):
-    print(f"[{datetime.now(timezone.utc).isoformat()}] Starting fetch cycle...")
-
-    nvd_data = fetch_nvd_cves()
-    cisa_data = fetch_cisa_kev()
-    arxiv_data = fetch_arxiv_papers()
-
-    findings = {
-        "nvd": nvd_data,
-        "cisa": cisa_data,
-        "arxiv": arxiv_data,
-    }
-
-    print(f"Fetched: {len(nvd_data)} CVEs, {len(cisa_data)} CISA advisories, {len(arxiv_data)} arXiv papers")
-
-    draft = generate_post(findings)
-
     with store_lock:
-        store["findings"] = findings
-        store["draft"] = draft
-        store["last_run"] = datetime.now(timezone.utc).isoformat()
+        store["cycle_running"] = True
 
-    print("Cycle complete.")
+    try:
+        print(f"[{datetime.now(timezone.utc).isoformat()}] Starting fetch cycle...")
+
+        nvd_data = fetch_nvd_cves()
+        cisa_data = fetch_cisa_kev()
+        arxiv_data = fetch_arxiv_papers()
+
+        findings = {
+            "nvd": nvd_data,
+            "cisa": cisa_data,
+            "arxiv": arxiv_data,
+        }
+
+        print(f"Fetched: {len(nvd_data)} CVEs, {len(cisa_data)} CISA advisories, {len(arxiv_data)} arXiv papers")
+
+        draft = generate_post(findings)
+
+        with store_lock:
+            store["findings"] = findings
+            store["draft"] = draft
+            store["last_run"] = datetime.now(timezone.utc).isoformat()
+
+        print("Cycle complete.")
+    finally:
+        with store_lock:
+            store["cycle_running"] = False
 
 
 def init_scheduler(app, store, store_lock):

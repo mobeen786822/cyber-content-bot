@@ -9,11 +9,9 @@ def fetch_arxiv_papers():
         f"&sortBy=submittedDate&sortOrder=descending&max_results=5"
     )
 
-    try:
-        feed = feedparser.parse(url)
-    except Exception as e:
-        print(f"arXiv fetch error: {e}")
-        return []
+    feed = feedparser.parse(url)
+    if feed.bozo:
+        print(f"arXiv feed error: {feed.bozo_exception}")
 
     papers = []
     for entry in feed.entries:
