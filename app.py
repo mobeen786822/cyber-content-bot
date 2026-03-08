@@ -63,7 +63,7 @@ def run_cycle():
             store["cycle_running"] = False
 
 
-@app.route("/api/status")
+@app.route("/status")
 def status():
     with store_lock:
         return jsonify({
@@ -78,7 +78,7 @@ def status():
         })
 
 
-@app.route("/api/run", methods=["POST"])
+@app.route("/run", methods=["POST"])
 def run():
     with store_lock:
         if store["cycle_running"]:
@@ -88,7 +88,7 @@ def run():
     return jsonify({"message": "Cycle started"}), 202
 
 
-@app.route("/api/draft")
+@app.route("/draft")
 def get_draft():
     with store_lock:
         return jsonify({
@@ -97,7 +97,7 @@ def get_draft():
         })
 
 
-@app.route("/api/draft/regenerate", methods=["POST"])
+@app.route("/draft/regenerate", methods=["POST"])
 def regenerate_draft():
     tone = request.json.get("tone", "professional") if request.is_json else "professional"
     from generator.post_generator import generate_post

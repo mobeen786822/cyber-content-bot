@@ -7,10 +7,9 @@ export default defineConfig(({ mode }) => ({
   server: mode === 'development'
     ? {
         proxy: {
-          '/api': {
-            target: 'http://localhost:5058',
-            changeOrigin: true,
-          },
+          '/status': { target: 'http://localhost:5058', changeOrigin: true },
+          '/run': { target: 'http://localhost:5058', changeOrigin: true },
+          '/draft': { target: 'http://localhost:5058', changeOrigin: true },
         },
       }
     : undefined,

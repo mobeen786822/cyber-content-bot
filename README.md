@@ -93,16 +93,16 @@ npm install
 npm run dev
 ```
 
-The Vite dev server starts on **http://localhost:5173** and proxies all `/api` requests to the Flask backend.
+The Vite dev server starts on **http://localhost:5173** and proxies API requests to the Flask backend.
 
 ## API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/api/status` | Last run time, finding count, cycle status |
-| `POST` | `/api/run` | Manually trigger a fetch + generate cycle (409 if already running) |
-| `GET` | `/api/draft` | Current draft text and raw findings from all sources |
-| `POST` | `/api/draft/regenerate` | Re-generate the draft — accepts `{ "tone": "professional" \| "conversational" \| "technical" }` |
+| `GET` | `/status` | Last run time, finding count, cycle status |
+| `POST` | `/run` | Manually trigger a fetch + generate cycle (409 if already running) |
+| `GET` | `/draft` | Current draft text and raw findings from all sources |
+| `POST` | `/draft/regenerate` | Re-generate the draft — accepts `{ "tone": "professional" \| "conversational" \| "technical" }` |
 
 ## Configuration
 
@@ -110,7 +110,7 @@ The Vite dev server starts on **http://localhost:5173** and proxies all `/api` r
 |----------|----------|-------------|
 | `ANTHROPIC_API_KEY` | Yes | Your Anthropic API key for Claude Haiku |
 | `FLASK_DEBUG` | No | Set to `1` to enable Flask debug mode (defaults to off) |
-| `VITE_API_BASE` | No | Backend API URL for production builds (e.g. `https://cyber-content-bot-api.onrender.com/api`). Falls back to `/api` for local dev |
+| `VITE_API_BASE` | No | Full backend URL for production builds (e.g. `https://cyber-content-bot-api.onrender.com`). In local dev, the Vite proxy handles routing automatically |
 
 Copy `.env.example` to `.env` and add your key. The app uses `python-dotenv` with `override=True` so the `.env` file always takes precedence over shell environment variables.
 
@@ -145,7 +145,7 @@ To deploy:
 2. Go to [Render Dashboard](https://dashboard.render.com/) → **New** → **Blueprint**
 3. Connect your repo — Render reads `render.yaml` automatically
 4. Set `ANTHROPIC_API_KEY` when prompted for the backend
-5. Set `VITE_API_BASE` to the backend's public URL + `/api` (e.g. `https://cyber-content-bot-api.onrender.com/api`) for the frontend
+5. Set `VITE_API_BASE` to the backend's public URL (e.g. `https://cyber-content-bot-api.onrender.com`) for the frontend
 6. Redeploy the frontend after setting `VITE_API_BASE` — it's a build-time variable
 
 ## Issues & Fixes
@@ -199,6 +199,12 @@ A log of problems encountered during development and deployment, and how each wa
 **Problem:** The initial `render.yaml` defined the frontend under a `staticSites` top-level key, which Render didn't recognise. A second attempt used `plan: static` under `services`, which also failed.
 
 **Fix:** Static sites in Render blueprints use `type: web` with `runtime: static` under the `services` key.
+
+### Frontend 404s on Render — `/api` prefix mismatch
+
+**Problem:** The deployed static site called `/api/run`, `/api/status`, etc. In production there's no Vite proxy to rewrite these paths, so they returned 404. The `/api` prefix only worked in local dev where the proxy forwarded them to Flask.
+
+**Fix:** Removed the `/api` prefix from all Flask routes (`/status`, `/run`, `/draft`, `/draft/regenerate`). Updated the frontend API client to use `VITE_API_BASE` (the full backend URL) in production, with an empty string fallback for local dev. Updated the Vite proxy to forward the bare paths individually.
 
 ## Tech Stack
 
