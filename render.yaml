@@ -12,9 +12,8 @@ services:
       - key: PYTHON_VERSION
         value: "3.12"
 
-  - type: web
-    plan: static
-    name: cyber-content-bot-ui
+staticSites:
+  - name: cyber-content-bot-ui
     buildCommand: cd client && npm install && npm run build
     staticPublishPath: client/dist
     envVars:
