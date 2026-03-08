@@ -144,6 +144,10 @@ pip-audit flagged 6 known vulnerabilities across 3 packages. All were resolved b
 | flask-cors | 5.0.1 | 6.0.0 | CVE-2024-6866, CVE-2024-6844, CVE-2024-6839 |
 | requests | 2.32.3 | 2.32.4 | CVE-2024-47081 |
 
+### Change: APScheduler Removed
+
+The project originally used APScheduler to run a weekly fetch + generate cycle every Monday at 8 AM, with an automatic run on startup. This was removed in favour of manual-only triggering via the **Run Now** button. The `scheduler.py` file was deleted and `apscheduler` was removed from `requirements.txt`, reducing the dependency footprint and giving users full control over when the pipeline runs.
+
 ## Tech Stack
 
 | Layer | Technology |
