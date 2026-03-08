@@ -26,6 +26,7 @@ A cybersecurity content automation tool that aggregates CVEs, CISA advisories, a
 ```
 cyber-content-bot/
 ├── app.py                        # Flask API server (port 5058)
+├── render.yaml                   # Render deployment blueprint
 ├── requirements.txt              # Python dependencies
 ├── .env.example                  # Environment variable template
 │
@@ -109,6 +110,7 @@ The Vite dev server starts on **http://localhost:5173** and proxies all `/api` r
 |----------|----------|-------------|
 | `ANTHROPIC_API_KEY` | Yes | Your Anthropic API key for Claude Haiku |
 | `FLASK_DEBUG` | No | Set to `1` to enable Flask debug mode (defaults to off) |
+| `VITE_API_BASE` | No | Backend API URL for production builds (e.g. `https://cyber-content-bot-api.onrender.com/api`). Falls back to `/api` for local dev |
 
 Copy `.env.example` to `.env` and add your key. The app uses `python-dotenv` with `override=True` so the `.env` file always takes precedence over shell environment variables.
 
@@ -148,6 +150,23 @@ pip-audit flagged 6 known vulnerabilities across 3 packages. All were resolved b
 
 The project originally used APScheduler to run a weekly fetch + generate cycle every Monday at 8 AM, with an automatic run on startup. This was removed in favour of manual-only triggering via the **Run Now** button. The `scheduler.py` file was deleted and `apscheduler` was removed from `requirements.txt`, reducing the dependency footprint and giving users full control over when the pipeline runs.
 
+## Deployment (Render)
+
+The project includes a `render.yaml` blueprint for one-click deployment to [Render](https://render.com):
+
+| Service | Type | What It Does |
+|---------|------|--------------|
+| **cyber-content-bot-api** | Python Web Service | Flask backend on port 5058 |
+| **cyber-content-bot-ui** | Static Site | React frontend built from `client/dist` |
+
+To deploy:
+
+1. Push the repo to GitHub
+2. Go to [Render Dashboard](https://dashboard.render.com/) → **New** → **Blueprint**
+3. Connect your repo — Render reads `render.yaml` automatically
+4. Set `ANTHROPIC_API_KEY` when prompted for the backend
+5. Set `VITE_API_BASE` to the backend's public URL + `/api` (e.g. `https://cyber-content-bot-api.onrender.com/api`) for the frontend
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -158,6 +177,7 @@ The project originally used APScheduler to run a weekly fetch + generate cycle e
 | Frontend | React 18, TypeScript, Vite |
 | Styling | Tailwind CSS v4 |
 | CI/CD | GitHub Actions |
+| Hosting | Render |
 
 ## License
 
