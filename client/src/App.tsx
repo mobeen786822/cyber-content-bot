@@ -171,11 +171,12 @@ function App() {
               <select
                 value={tone}
                 onChange={(e) => setTone(e.target.value)}
-                className="rounded-full border border-cyan-900/80 bg-slate-950 px-3 py-1.5 text-sm text-slate-200 outline-none transition focus:border-cyan-300"
+                className="appearance-none rounded-full border border-cyan-900/80 bg-slate-950 py-1.5 pl-4 pr-9 text-sm text-slate-200 outline-none transition focus:border-cyan-300"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center' }}
               >
-                <option value="professional">Professional</option>
-                <option value="conversational">Conversational</option>
-                <option value="technical">Technical</option>
+                <option value="professional" className="bg-slate-950 text-slate-200">Professional</option>
+                <option value="conversational" className="bg-slate-950 text-slate-200">Conversational</option>
+                <option value="technical" className="bg-slate-950 text-slate-200">Technical</option>
               </select>
               <button
                 onClick={handleRegenerate}
