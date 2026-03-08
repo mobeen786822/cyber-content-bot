@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#20D3BE"/>
+      <stop offset="100%" stop-color="#0FA89A"/>
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#20D3BE" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#20D3BE" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Dark background circle -->
+  <circle cx="16" cy="16" r="15" fill="#0D1117" stroke="#30363D" stroke-width="1"/>
+  <!-- Subtle glow -->
+  <circle cx="16" cy="14" r="10" fill="url(#glowGrad)"/>
+  <!-- Shield shape -->
+  <path d="M16 5L7 9.5V15C7 20.5 10.8 25.7 16 27C21.2 25.7 25 20.5 25 15V9.5L16 5Z"
+        fill="none" stroke="url(#shieldGrad)" stroke-width="1.8" stroke-linejoin="round"/>
+  <!-- Lock body -->
+  <rect x="12.5" y="15" width="7" height="5.5" rx="1" fill="url(#shieldGrad)"/>
+  <!-- Lock shackle -->
+  <path d="M13.8 15V12.8C13.8 11.3 14.8 10 16 10C17.2 10 18.2 11.3 18.2 12.8V15"
+        fill="none" stroke="#20D3BE" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Lock keyhole -->
+  <circle cx="16" cy="17.2" r="1" fill="#0D1117"/>
+  <rect x="15.5" y="17.5" width="1" height="1.5" rx="0.3" fill="#0D1117"/>
+</svg>
