@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: cyber-content-bot-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: PYTHON_VERSION
+        value: "3.12"
+
+  - type: web
+    plan: static
+    name: cyber-content-bot-ui
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: client/dist
+    envVars:
+      - key: VITE_API_BASE
+        sync: false

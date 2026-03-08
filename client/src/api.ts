@@ -40,7 +40,7 @@ export interface DraftResponse {
   findings: Findings;
 }
 
-const BASE = '/api';
+const BASE = import.meta.env.VITE_API_BASE || '/api';
 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
