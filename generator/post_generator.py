@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from anthropic import Anthropic
 
 
@@ -42,6 +43,8 @@ Strict output rules:
 - Write in first person if it helps the post feel more human, e.g. "One thing that stood out to me...".
 - Keep the post between 120 and 180 words.
 - Use short paragraphs with line breaks so it reads well on LinkedIn.
+- Do not use semicolons.
+- Do not use dashes as punctuation. CVE identifiers like CVE-2026-12345 are the only exception.
 - Include relevant hashtags at the end.
 - Do not use emojis.
 - Focus on genuine insight or awareness, not just listing CVEs."""
@@ -53,7 +56,16 @@ Strict output rules:
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_prompt}],
         )
-        return message.content[0].text
+        return clean_post_text(message.content[0].text)
     except Exception as e:
         print(f"Claude API error: {e}")
         return f"Error generating post: {e}"
+
+
+def clean_post_text(text):
+    """Remove punctuation habits that make posts sound too AI-written."""
+    text = text.replace(";", ",")
+    text = text.replace("—", ",")
+    text = text.replace("–", ",")
+    text = re.sub(r"\s+-\s+", ", ", text)
+    return text
