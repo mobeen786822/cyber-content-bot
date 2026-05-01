@@ -5,8 +5,9 @@ from anthropic import Anthropic
 
 SYSTEM_PROMPT = (
     "You are a cybersecurity content writer helping a graduate security engineer "
-    "build their LinkedIn presence. Write in a direct, technical but accessible tone. "
-    "No fluff, no hype. Focus on what's genuinely interesting or important."
+    "build their LinkedIn presence. Write like a thoughtful human security practitioner, "
+    "not a corporate blog or vulnerability database. Be clear, specific, and approachable. "
+    "No clickbait, no fearmongering, no hype. Focus on what's genuinely interesting or important."
 )
 
 
@@ -18,9 +19,9 @@ def generate_post(findings, tone="professional"):
     client = Anthropic(api_key=api_key)
 
     tone_instruction = {
-        "professional": "Use a professional, polished tone suitable for LinkedIn.",
+        "professional": "Use a professional but human tone suitable for LinkedIn. Sound like a real security practitioner sharing a useful observation.",
         "conversational": "Use a conversational, approachable tone — like talking to a peer over coffee.",
-        "technical": "Use a deeply technical tone with specific details, for a security-savvy audience.",
+        "technical": "Use a technical but readable tone with specific details, for a security-savvy audience.",
     }.get(tone, "Use a professional, polished tone suitable for LinkedIn.")
 
     findings_text = json.dumps(findings, indent=2)
@@ -36,7 +37,11 @@ Based on these findings, identify the 2-3 most interesting or important items ac
 Strict output rules:
 - Return only the final LinkedIn post.
 - Do not include analysis, headings like "Top Findings Analysis", explanations, or labels like "LinkedIn Post".
+- Start with a strong human hook in the first 1-2 lines that makes a reader want to click "see more".
+- The hook should feel natural, specific, and relevant to the findings. Avoid generic hooks like "Cybersecurity is important".
+- Write in first person if it helps the post feel more human, e.g. "One thing that stood out to me...".
 - Keep the post between 120 and 180 words.
+- Use short paragraphs with line breaks so it reads well on LinkedIn.
 - Include relevant hashtags at the end.
 - Do not use emojis.
 - Focus on genuine insight or awareness, not just listing CVEs."""
