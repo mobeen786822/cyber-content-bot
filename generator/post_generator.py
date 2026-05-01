@@ -29,11 +29,17 @@ def generate_post(findings, tone="professional"):
 
 {findings_text}
 
-Based on these findings, identify the 2-3 most interesting or important items across all three sources. Then draft a LinkedIn post of 150-250 words.
+Based on these findings, identify the 2-3 most interesting or important items across all three sources, then write the final LinkedIn post.
 
 {tone_instruction}
 
-Include relevant hashtags at the end. Do not use emojis. Focus on providing genuine insight or awareness, not just listing CVEs."""
+Strict output rules:
+- Return only the final LinkedIn post.
+- Do not include analysis, headings like "Top Findings Analysis", explanations, or labels like "LinkedIn Post".
+- Keep the post between 120 and 180 words.
+- Include relevant hashtags at the end.
+- Do not use emojis.
+- Focus on genuine insight or awareness, not just listing CVEs."""
 
     try:
         message = client.messages.create(

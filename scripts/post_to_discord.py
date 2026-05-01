@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import os
 import sys
+from io import BytesIO
 from datetime import datetime, timezone
 
 import requests
@@ -35,7 +36,7 @@ def build_discord_message(draft: str, findings: dict) -> str:
         f"arXiv: {len(findings['arxiv'])}"
     )
 
-    message = (
+    return (
         "**Cyber LinkedIn draft ready for review**\n"
         f"Generated: {generated_at}\n"
         f"Sources: {counts}\n\n"
@@ -43,26 +44,34 @@ def build_discord_message(draft: str, findings: dict) -> str:
         "Copy this into LinkedIn after review."
     )
 
-    # Discord webhook content limit is 2000 chars.
-    if len(message) > 2000:
-        message = message[:1970].rstrip() + "\n\n...[truncated]"
-
-    return message
-
 
 def send_to_discord(content: str) -> None:
     webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
     if not webhook_url:
         raise RuntimeError("DISCORD_WEBHOOK_URL is not set")
 
-    response = requests.post(
-        webhook_url,
-        json={
-            "content": content,
-            "username": "Cyber Content Bot",
-        },
-        timeout=30,
-    )
+    if len(content) <= 2000:
+        response = requests.post(
+            webhook_url,
+            json={
+                "content": content,
+                "username": "Cyber Content Bot",
+            },
+            timeout=30,
+        )
+    else:
+        preview = content[:1800].rstrip()
+        response = requests.post(
+            webhook_url,
+            data={
+                "content": f"{preview}\n\nFull draft attached as `linkedin-draft.txt`.",
+                "username": "Cyber Content Bot",
+            },
+            files={
+                "file": ("linkedin-draft.txt", BytesIO(content.encode("utf-8")), "text/plain"),
+            },
+            timeout=30,
+        )
     response.raise_for_status()
 
 
