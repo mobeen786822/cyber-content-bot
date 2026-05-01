@@ -9,6 +9,7 @@ A cybersecurity content automation tool that aggregates CVEs, CISA advisories, a
 - **Automated Data Collection** — Pulls high-severity CVEs, actively exploited vulnerabilities, and cutting-edge AI security research from three authoritative sources
 - **AI-Powered Drafting** — Claude Haiku generates concise, professional LinkedIn posts from raw findings
 - **Tone Control** — Regenerate drafts in professional, conversational, or technical tones
+- **Scheduled Discord Delivery** — GitHub Actions can generate a fresh draft on a schedule and send it to a Discord channel via webhook
 - **One-Click Manual Runs** — Trigger the pipeline on demand from the dashboard
 - **Dark-Themed Dashboard** — React + Tailwind UI for reviewing drafts, browsing raw findings, and copying posts to clipboard
 - **CI/CD Security Pipeline** — GitHub Actions runs Bandit SAST, pip-audit, and Gitleaks on every push
@@ -109,6 +110,8 @@ The Vite dev server starts on **http://localhost:5173** and proxies API requests
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `ANTHROPIC_API_KEY` | Yes | Your Anthropic API key for Claude Haiku |
+| `DISCORD_WEBHOOK_URL` | For scheduled Discord posts | Discord channel webhook used by the scheduled GitHub Action |
+| `POST_TONE` | No | Scheduled post tone, defaults to `professional` |
 | `FLASK_DEBUG` | No | Set to `1` to enable Flask debug mode (defaults to off) |
 | `VITE_API_BASE` | No | Full backend URL for production builds (e.g. `https://cyber-content-bot-api.onrender.com`). In local dev, the Vite proxy handles routing automatically |
 
@@ -120,7 +123,27 @@ Copy `.env.example` to `.env` and add your key. The app uses `python-dotenv` wit
 2. The bot fetches from all three data sources (NVD, CISA, arXiv)
 3. Findings are passed to Claude Haiku, which drafts a 150–250 word LinkedIn post highlighting the 2–3 most notable items
 4. The dashboard polls `/api/status` while a cycle is running, then loads the draft when complete
-5. Review the draft, regenerate with a different tone, or copy to clipboard
+5. Review the draft, regenerate with a different tone, or copy it to LinkedIn manually
+
+## Scheduled Discord Drafts
+
+The `.github/workflows/discord-post.yml` workflow runs the content pipeline and posts the generated LinkedIn draft to a Discord channel.
+
+### Discord setup
+
+1. In Discord, open the target channel settings
+2. Go to **Integrations** → **Webhooks** → **New Webhook**
+3. Copy the webhook URL
+4. In GitHub, open the repo → **Settings** → **Secrets and variables** → **Actions**
+5. Add these repository secrets:
+   - `ANTHROPIC_API_KEY`
+   - `DISCORD_WEBHOOK_URL`
+
+### Schedule
+
+The default schedule posts every Monday at **7:30am Australia/Sydney**. Because GitHub Actions cron only supports UTC, the workflow includes two UTC triggers plus a Sydney-time guard so it stays correct across daylight saving changes.
+
+You can also run it manually from GitHub Actions with **Generate Discord LinkedIn Draft** → **Run workflow**.
 
 ## CI/CD
 

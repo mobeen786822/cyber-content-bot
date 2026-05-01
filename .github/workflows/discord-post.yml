@@ -1,0 +1,48 @@
+name: Generate Discord LinkedIn Draft
+
+on:
+  # GitHub cron is UTC-only. These two entries cover Australia/Sydney
+  # standard time (AEST) and daylight saving time (AEDT). The guard step
+  # below ensures the job only posts at Monday 07:30 Australia/Sydney.
+  schedule:
+    - cron: "30 20 * * 0"
+    - cron: "30 21 * * 0"
+  workflow_dispatch:
+
+jobs:
+  generate-and-send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check Sydney schedule
+        id: schedule-check
+        if: github.event_name == 'schedule'
+        run: |
+          python - <<'PY'
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          import os
+
+          now = datetime.now(ZoneInfo("Australia/Sydney"))
+          should_run = now.weekday() == 0 and now.hour == 7 and now.minute == 30
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"should_run={str(should_run).lower()}\n")
+          print(f"Sydney time: {now:%A %Y-%m-%d %H:%M %Z}; should_run={should_run}")
+          PY
+
+      - name: Generate post and send to Discord
+        if: github.event_name == 'workflow_dispatch' || steps.schedule-check.outputs.should_run == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          POST_TONE: professional
+        run: python scripts/post_to_discord.py
