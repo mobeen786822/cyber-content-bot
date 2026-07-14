@@ -41,6 +41,25 @@ export interface DraftResponse {
 }
 
 const BASE = import.meta.env.VITE_API_BASE || '';
+const API_KEY_STORAGE = 'content_bot_api_key';
+
+export function getStoredApiKey(): string {
+  return window.localStorage.getItem(API_KEY_STORAGE) || '';
+}
+
+export function configureApiKey(apiKey: string): void {
+  const cleanKey = apiKey.trim();
+  if (cleanKey) {
+    window.localStorage.setItem(API_KEY_STORAGE, cleanKey);
+  } else {
+    window.localStorage.removeItem(API_KEY_STORAGE);
+  }
+}
+
+function authHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  const apiKey = getStoredApiKey();
+  return apiKey ? { ...extra, 'X-API-Key': apiKey } : extra;
+}
 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
@@ -50,26 +69,26 @@ async function handleResponse<T>(res: Response): Promise<T> {
 }
 
 export async function getStatus(): Promise<StatusResponse> {
-  const res = await fetch(`${BASE}/status`);
+  const res = await fetch(`${BASE}/status`, { headers: authHeaders() });
   return handleResponse<StatusResponse>(res);
 }
 
 export async function triggerRun(): Promise<void> {
-  const res = await fetch(`${BASE}/run`, { method: 'POST' });
+  const res = await fetch(`${BASE}/run`, { method: 'POST', headers: authHeaders() });
   if (!res.ok && res.status !== 409) {
     throw new Error(`API error: ${res.status} ${res.statusText}`);
   }
 }
 
 export async function getDraft(): Promise<DraftResponse> {
-  const res = await fetch(`${BASE}/draft`);
+  const res = await fetch(`${BASE}/draft`, { headers: authHeaders() });
   return handleResponse<DraftResponse>(res);
 }
 
 export async function regenerateDraft(tone: string): Promise<{ draft: string }> {
   const res = await fetch(`${BASE}/draft/regenerate`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify({ tone }),
   });
   return handleResponse<{ draft: string }>(res);

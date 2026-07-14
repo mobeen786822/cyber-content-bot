@@ -4,11 +4,15 @@ import {
   getDraft,
   triggerRun,
   regenerateDraft,
+  configureApiKey,
+  getStoredApiKey,
   type StatusResponse,
   type DraftResponse,
 } from './api'
 
 function App() {
+  const [apiKey, setApiKey] = useState(getStoredApiKey)
+  const [apiKeyInput, setApiKeyInput] = useState('')
   const [status, setStatus] = useState<StatusResponse | null>(null)
   const [draftData, setDraftData] = useState<DraftResponse | null>(null)
   const [loading, setLoading] = useState(false)
@@ -24,12 +28,16 @@ function App() {
       setDraftData(d)
     } catch (e) {
       console.error('Failed to fetch data:', e)
+      if (e instanceof Error && e.message.includes('401')) {
+        configureApiKey('')
+        setApiKey('')
+      }
     }
   }, [])
 
   useEffect(() => {
-    fetchAll()
-  }, [fetchAll])
+    if (apiKey) fetchAll()
+  }, [apiKey, fetchAll])
 
   // Poll while loading
   useEffect(() => {
@@ -89,6 +97,37 @@ function App() {
   const formatTime = (iso: string | null) => {
     if (!iso) return 'Never'
     return new Date(iso).toLocaleString()
+  }
+
+  if (!apiKey) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 p-6 text-slate-100">
+        <form
+          className="w-full max-w-md rounded-2xl border border-cyan-900/60 bg-slate-900 p-6"
+          onSubmit={(event) => {
+            event.preventDefault()
+            const cleanKey = apiKeyInput.trim()
+            if (!cleanKey) return
+            configureApiKey(cleanKey)
+            setApiKey(cleanKey)
+          }}
+        >
+          <h1 className="text-xl font-semibold text-cyan-200">Cyber Content Bot</h1>
+          <p className="mt-2 text-sm text-slate-400">Enter the API key configured on the backend.</p>
+          <input
+            autoComplete="off"
+            className="mt-5 w-full rounded-lg border border-cyan-900 bg-slate-950 px-3 py-2 outline-none focus:border-cyan-400"
+            onChange={(event) => setApiKeyInput(event.target.value)}
+            placeholder="API key"
+            type="password"
+            value={apiKeyInput}
+          />
+          <button className="mt-4 w-full rounded-lg bg-cyan-300 px-4 py-2 font-semibold text-slate-950">
+            Unlock
+          </button>
+        </form>
+      </div>
+    )
   }
 
   return (

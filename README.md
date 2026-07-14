@@ -79,12 +79,13 @@ pip install -r requirements.txt
 # Configure your API key
 cp .env.example .env
 # Edit .env and paste your Anthropic API key
+# Also replace CONTENT_BOT_API_KEY with a strong random value
 
 # Start the Flask server
 python app.py
 ```
 
-The backend runs on **http://localhost:5058**. Click **Run Now** in the dashboard to fetch data and generate your first draft.
+The backend runs on **http://localhost:5058**. Enter `CONTENT_BOT_API_KEY` in the dashboard, then click **Run Now**.
 
 ### Frontend
 
@@ -113,6 +114,10 @@ The Vite dev server starts on **http://localhost:5173** and proxies API requests
 | `DISCORD_WEBHOOK_URL` | For scheduled Discord posts | Discord channel webhook used by the scheduled GitHub Action |
 | `POST_TONE` | No | Scheduled post tone, defaults to `professional` |
 | `FLASK_DEBUG` | No | Set to `1` to enable Flask debug mode (defaults to off) |
+| `FLASK_HOST` | No | Bind address. Defaults to `127.0.0.1` |
+| `CONTENT_BOT_REQUIRE_AUTH` | No | Require API authentication. Defaults to `true` |
+| `CONTENT_BOT_API_KEY` | Yes for the web API | Strong key accepted through `X-API-Key` or Bearer authentication |
+| `CORS_ALLOWED_ORIGINS` | Yes for a hosted UI | Comma-separated browser origins allowed to call the API |
 | `VITE_API_BASE` | No | Full backend URL for production builds (e.g. `https://cyber-content-bot-api.onrender.com`). In local dev, the Vite proxy handles routing automatically |
 
 Copy `.env.example` to `.env` and add your key. The app uses `python-dotenv` with `override=True` so the `.env` file always takes precedence over shell environment variables.
@@ -168,8 +173,10 @@ To deploy:
 2. Go to [Render Dashboard](https://dashboard.render.com/) → **New** → **Blueprint**
 3. Connect your repo — Render reads `render.yaml` automatically
 4. Set `ANTHROPIC_API_KEY` when prompted for the backend
-5. Set `VITE_API_BASE` to the backend's public URL (e.g. `https://cyber-content-bot-api.onrender.com`) for the frontend
-6. Redeploy the frontend after setting `VITE_API_BASE` — it's a build-time variable
+5. Set `CORS_ALLOWED_ORIGINS` to the exact deployed frontend origin
+6. Set `VITE_API_BASE` to the backend's public URL (e.g. `https://cyber-content-bot-api.onrender.com`) for the frontend
+7. Copy the generated `CONTENT_BOT_API_KEY` from the backend settings into the dashboard access screen
+8. Redeploy the frontend after setting `VITE_API_BASE` — it's a build-time variable
 
 ## Issues & Fixes
 
