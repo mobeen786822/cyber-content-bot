@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import {
   getStatus,
   getDraft,
@@ -21,23 +21,29 @@ function App() {
   const [copied, setCopied] = useState(false)
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({})
 
-  const fetchAll = useCallback(async () => {
-    try {
-      const [s, d] = await Promise.all([getStatus(), getDraft()])
-      setStatus(s)
-      setDraftData(d)
-    } catch (e) {
-      console.error('Failed to fetch data:', e)
-      if (e instanceof Error && e.message.includes('401')) {
-        configureApiKey('')
-        setApiKey('')
-      }
-    }
-  }, [])
-
   useEffect(() => {
-    if (apiKey) fetchAll()
-  }, [apiKey, fetchAll])
+    if (!apiKey) return
+
+    let cancelled = false
+    Promise.all([getStatus(), getDraft()])
+      .then(([nextStatus, nextDraft]) => {
+        if (cancelled) return
+        setStatus(nextStatus)
+        setDraftData(nextDraft)
+      })
+      .catch((error: unknown) => {
+        if (cancelled) return
+        console.error('Failed to fetch data:', error)
+        if (error instanceof Error && error.message.includes('401')) {
+          configureApiKey('')
+          setApiKey('')
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [apiKey])
 
   // Poll while loading
   useEffect(() => {
